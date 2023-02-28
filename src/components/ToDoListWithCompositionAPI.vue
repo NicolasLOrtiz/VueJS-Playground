@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 interface Item {
   id: number;
@@ -12,6 +12,9 @@ const items = ref<Item[]>([]);
 const isAddingItem = ref(false);
 const newItem = ref("");
 const newItemPriority = ref("low");
+const itemsCount = computed(() => items.value.length);
+const characterCount = computed(() => newItem.value.length);
+const reverseItems = computed(() => [...items.value].reverse());
 
 const addItem = () => {
   if (newItem.value === "") {
@@ -45,13 +48,14 @@ const togglePurchased = (item: Item) => {
 <template>
   <div class="card">
     <h1>Shopping List App</h1>
+    <h2>Items: {{ itemsCount }}</h2>
     <button @click="handleIsAddingItem">
       {{ isAddingItem ? "Cancel" : "Add Item" }}
     </button>
 
     <form v-if="isAddingItem" @submit.prevent="addItem">
       <input
-        v-model.lazy.trim="newItem"
+        v-model="newItem"
         placeholder="Add an item"
         type="text"
       />
@@ -72,10 +76,13 @@ const togglePurchased = (item: Item) => {
       </label>
 
       <button type="submit">Save Item</button>
+
+      <p>Character Count: {{ characterCount }}/200</p>
     </form>
     <ul>
       <li
-        v-for="({id, name, purchased, priority}, index) in items" :key="id"
+        v-for="({id, name, purchased, priority}, index) in reverseItems"
+        :key="id"
         :class="{strikeout: purchased, highPriority: priority === 'high', mediumPriority: priority === 'medium' }"
         class="priority"
         @click="togglePurchased(items[index])"
